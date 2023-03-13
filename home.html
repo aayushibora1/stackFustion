@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Form</title>
+
+    <script src="app.js"></script>
+
+</head>
+<style>
+  h1 {
+    color: black;
+    
+    font-size: 300%;
+    font-family: system-ui, sans-serif;
+
+  }
+  
+  .center  {
+      text-align: center; 
+      border:50px solid;
+      width: 30em;
+  max-width: 80%;
+  max-height:50%;
+  }
+  .usrform{
+      margen:6px;  
+      text-align: center;
+      border-width: 5px 1px;
+    
+      width: 30em;
+  max-width: 80%;
+  max-height:50%;
+  margin:0 auto;
+  
+  }
+  .lable{
+    font-size: 1.3rem;
+    line-height: 1.2; 
+  }
+  .button{
+    font-size: 1.3rem;
+    margin-bottom:2rem;
+    line-height: 1.2;
+    background-color:powderblue;
+  }
+
+</style>
+<body>
+  <div class="center">
+  <h1>User Form</h1>
+  <form method="post" action="/user-form">
+    <div class="usrform">
+    <label class="lable" for="name">Name:</label>
+    <input type="text" name="name" required><br>
+    <span class="name-error"></span>
+
+    <label  class="lable" for="dob">Date of Birth:</label>
+    <input type="date" name="dob" required><br>
+    <span class="dob-error"></span>
+
+    <label class="lable" for="email">Email:</label>
+    <input type="email" name="email" required><br>
+    <span class="email-error"></span>
+
+    <label class="lable" for="phone">Phone Number:</label>
+    <input type="tel" name="phone" pattern="\d{10}" required><br>
+    <span class="phone-error"></span>
+
+    <input class="button" type="submit" value="Submit">
+  </form>
+</div>
+</div>
+
+  <script>
+    const form = document.querySelector('form');
+    const nameInput = document.querySelector('input[name="name"]');
+    const dobInput = document.querySelector('input[name="dob"]');
+    const emailInput = document.querySelector('input[name="email"]');
+    const phoneInput = document.querySelector('input[name="phone"]');
+    const nameError = document.querySelector('.name-error');
+    const dobError = document.querySelector('.dob-error');
+    const emailError = document.querySelector('.email-error');
+    const phoneError = document.querySelector('.phone-error');
+
+    form.addEventListener('submit', (event) => {
+      let isValid = true;
+
+      // Check name
+      if (!nameInput.value) {
+        nameError.textContent = 'Please enter your name.';
+        isValid = false;
+      } else {
+        nameError.textContent = '';
+      }
+
+      // Check date of birth
+      const dob = new Date(dobInput.value);
+      const now = new Date();
+      const age = now.getFullYear() - dob.getFullYear();
+      if (age < 18) {
+        dobError.textContent = 'You must be 18 years or older.';
+        isValid = false;
+      } else {
+        dobError.textContent = '';
+      }
+
+      // Check email
+      if (!emailInput.value) {
+        emailError.textContent = 'Please enter your email.';
+        isValid = false;
+      } else {
+        emailError.textContent = '';
+      }
+
+      // Check phone number
+      if (!phoneInput.value) {
+        phoneError.textContent = 'Please enter your phone number.';
+        isValid = false;
+      } else if (!phoneInput.value.match(/^\d{10}$/)) {
+        phoneError.textContent = 'Please enter a valid 10-digit phone number.';
+        isValid = false;
+      } else {
+        phoneError.textContent = '';
+      }
+
+      if (!isValid) {
+        event.preventDefault();
+      }
+    });
+
+    const Joi = require('joi');
+
+const phoneSchema = Joi.string()
+  .regex(/^\d{10}$/)
+  .required()
+  .error(new Error('Invalid phone number'));
+
+// Export the validation function
+module.exports = {
+  validatePhone: (phone) => {
+    const result = phoneSchema.validate(phone);
+    if (result.error) {
+      throw result.error;
+    }
+  },
+};
+const { validatePhone } = require('./validation');
+
+// ...
+
+app.post('/user-form', (req, res) => {
+  // ...
+
+  try {
+    // Validate the phone number
+    validatePhone(phone);
+
+    // Save the form
+    // ...
+
+    // Send the email
+    // ...
+
+    // Redirect to the form submission page
+    // ...
+  } catch (error) {
+    // Handle the validation error
+    res.status(400).send(error.message);
+  }
+});
+ 
+  </script>
+</body>
+</html>
